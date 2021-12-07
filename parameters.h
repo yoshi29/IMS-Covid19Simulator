@@ -4,23 +4,31 @@
 
 enum AGE_GROUP { G0_14, G15_24, G25_34, G35_44, G45_54, G55_64, G65_74, G75_84, G85 }; // Groups according to https://onemocneni-aktualne.mzcr.cz/covid-19/prehledy-khs
 
-enum INFECTION_STATE { NOT_INFECTED, INFECTED, IN_HOSPITAL, IMMUNE, DOSE_1, DOSE_2, DEAD };
+enum INFECTION_STATE { NOT_INFECTED, INFECTED, IN_HOSPITAL, IMMUNE, DEAD };
+enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 
-int INFECTION_DISTANCE_MIN = 2; 
-int INFECTION_DISTANCE_MAX = 8; // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7357531/
-int DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL = 10; // https://www.houstonmethodist.org/blog/articles/2020/jul/3-things-to-know-about-life-after-recovering-from-covid-19/
-int DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN = 0; //?
-int DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX = 0; //? 
+// Infection parameters 
+#define INFECTION_PROBABILITY 0 //?
+#define INFECTION_DISTANCE_MIN 2 
+#define INFECTION_DISTANCE_MAX 8 // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7357531/
 
+// Recovery
+#define DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL 10 // https://www.houstonmethodist.org/blog/articles/2020/jul/3-things-to-know-about-life-after-recovering-from-covid-19/
+#define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN 0 //?
+#define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX 0 //? 
+
+// Vaccination effects
 // https://idpjournal.biomedcentral.com/articles/10.1186/s40249-021-00915-3/tables/1
-float DOSE_1_INFECTION_PREVENTION = 0.41;
-float DOSE_1_HOSPITAL_PREVENTION = 0.66;
-float DOSE_1_DEATH_PREVENTION = 0.53;
-float DOSE_2_INFECTION_PREVENTION = 0.85;
-float DOSE_2_HOSPITAL_PREVENTION = 0.93;
-float DOSE_2_DEATH_PREVENTION = 0.95;
+#define DOSE_1_INFECTION_PREVENTION 0.41f
+#define DOSE_1_HOSPITAL_PREVENTION 0.66f
+#define DOSE_1_DEATH_PREVENTION 0.53f
+#define DOSE_2_INFECTION_PREVENTION 0.85f
+#define DOSE_2_HOSPITAL_PREVENTION 0.93f
+#define DOSE_2_DEATH_PREVENTION 0.95f
 
-int HOSPITAL_PLACES = 27751; // sum of https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece 
+// Hospital
+#define HOSPITAL_PLACES 27751 // sum of https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece 
+
 
 // Number of infected people in age group
 std::map<AGE_GROUP, int> START_INFECTION_CNT {
