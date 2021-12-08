@@ -1,4 +1,4 @@
-#include <person.h>
+#include "person.h"
 
 // - Může člověk zemřít doma, anebo pouze v nemocnici?
 // - Může člověk v nemocnici nakazit ostatní?
@@ -16,6 +16,9 @@ bool Person::tryToGetCovid(Person anotherPerson) {
                 break;
             case DOSE_2:
                 infectionProbability *= DOSE_2_INFECTION_PREVENTION;
+                break;
+            default: 
+                break;
         }
         return rand() < infectionProbability; // OK?
     }
@@ -23,10 +26,10 @@ bool Person::tryToGetCovid(Person anotherPerson) {
     else return false; 
 }
 
-bool Person::tryToMoveToHospital() {
-    if (infectionState == INFECTED) {
+// bool Person::tryToMoveToHospital() {
+//     if (infectionState == INFECTED) {
 
-    }
+//     }
 
-    else return false; 
-}
+//     else return false; 
+// }

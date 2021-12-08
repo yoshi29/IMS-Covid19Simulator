@@ -1,8 +1,9 @@
+#pragma once
 #include <iostream>
 #include <map>
 #include <string>
 
-enum AGE_GROUP { G0_14, G15_24, G25_34, G35_44, G45_54, G55_64, G65_74, G75_84, G85 }; // Groups according to https://onemocneni-aktualne.mzcr.cz/covid-19/prehledy-khs
+enum AGE_GROUP { G16_24, G25_29, G30_34, G35_39, G40_44, G45_49, G50_54, G55_59, G60_64, G65_69, G70_74, G75_79, G80 }; // Groups according to https://onemocneni-aktualne.mzcr.cz/covid-19/prehledy-khs
 
 enum INFECTION_STATE { NOT_INFECTED, INFECTED, IN_HOSPITAL, IMMUNE, DEAD };
 enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
@@ -29,42 +30,51 @@ enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 // Hospital
 #define HOSPITAL_PLACES 27751 // sum of https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece 
 
-
-// Number of infected people in age group
-std::map<AGE_GROUP, int> START_INFECTION_CNT {
-    { G0_14, 334267 },
-    { G15_24, 230941 },
-    { G25_34, 301704 },
-    { G35_44, 393265 },
-    { G45_54, 395905 },
-    { G55_64, 268170 },
-    { G65_74, 178271 },
-    { G75_84, 96622 },
-    { G85, 40418 }
-};
-
 // Number of people in age group according to https://www.czso.cz/staticke/animgraf/cz/index.html?lang=cz
-std::map<AGE_GROUP, float> START_AGE_GROUP_CNT {
-    { G0_14, 1720000 },
-    { G15_24, 970000 },
-    { G25_34, 1340000 },
-    { G35_44, 1650000 },
-    { G45_54, 1570000 },
-    { G55_64, 1300000 },
-    { G65_74, 1290000 },
-    { G75_84, 660000 },
-    { G85, 200000 } 
+static std::map<AGE_GROUP, int> START_AGE_GROUP_CNT {
+    { G16_24, 860000 },
+    { G25_29, 760000 },
+    { G30_34, 720000 },
+    { G35_39, 750000 },
+    { G40_44, 890000 },
+    { G45_49, 880000 },
+    { G50_54, 690000 },
+    { G55_59, 670000 },
+    { G60_64, 630000 },
+    { G65_69, 670000 },
+    { G70_74, 620000 }, 
+    { G75_79, 420000 }, 
+    { G80, 450000 }
 };
 
-// Number of dead people in age group
-std::map<AGE_GROUP, float> DEATH_CNT {
-    { G0_14, 6 },
-    { G15_24, 8 },
-    { G25_34, 69 },
-    { G35_44, 225 },
-    { G45_54, 746 },
-    { G55_64, 2521 },
-    { G65_74, 8781 },
-    { G75_84, 12633 },
-    { G85, 8913 }
+static std::map<AGE_GROUP, float> HOSPITALIZATION_CHANCE {
+    { G16_24, 0.57271f }, // 40858 - number of infected
+    { G25_29, 1.13231f }, // 22432
+    { G30_34, 1.41258f }, // 28317
+    { G35_39, 1.33198f }, // 34535
+    { G40_44, 1.50615f }, // 41563
+    { G45_49, 2.19091f }, // 37473
+    { G50_54, 3.22234f }, // 23275
+    { G55_59, 5.11289f }, // 19930
+    { G60_64, 8.04725f }, // 14477
+    { G65_69, 12.5701f }, // 13739
+    { G70_74, 22.01835f }, // 10791
+    { G75_79, 32.65567f }, // 7034
+    { G80, 53.9788f } // 7829
+};
+
+static std::map<AGE_GROUP, float> DEATH_CHANCE {
+    { G16_24, 0.00245f }, // 40858 - number of infected
+    { G25_29, 0.00446f }, // 22432
+    { G30_34, 0.01766f }, // 28317
+    { G35_39, 0.02316f }, // 34535
+    { G40_44, 0.02887f }, // 41563
+    { G45_49, 0.09874f }, // 37473
+    { G50_54, 0.18475f }, // 23275
+    { G55_59, 0.39639f }, // 19930
+    { G60_64, 0.98087f }, // 14477
+    { G65_69, 2.03072f }, // 13739
+    { G70_74, 4.09601f }, // 10791
+    { G75_79, 7.07989f }, // 7034
+    { G80, 16.19619f } // 7829
 };
