@@ -31,6 +31,7 @@ int main() {
         people.at(random)->infectionState = INFECTED;
     }
 
+	// Move people to area
     for (int i = 0; i < people.size(); i++) {
         area[people[i]->homeX][people[i]->homeY]++;
     }

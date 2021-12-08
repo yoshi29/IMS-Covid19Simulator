@@ -26,6 +26,25 @@ bool Person::tryToGetCovid(Person anotherPerson) {
     else return false; 
 }
 
+void Person::moveTo(int X, int Y) {
+    
+    while (currentX != X || currentY != Y) {
+        if (currentX < X) currentX++; // →
+        else if (currentX > X) currentX--; // ←
+
+        if (currentY < Y) currentY++; // ↓
+        else if (currentY > Y) currentY--; // ↑
+
+        // zrušit svou starou pozici v mapě
+        // Zaznamenat se na posunutou pozici v mapě
+        // pokud na nové pozici už někdo je: (vyřešit, aby na jednom poli mohlo být více lidí)
+        //      zavolat tryGetCovid
+        // pokčačovat další iterací
+
+        std::cout << "[" + std::to_string(currentX) + "," + std::to_string(currentY) + "]" << std::endl;
+    }
+}
+
 // bool Person::tryToMoveToHospital() {
 //     if (infectionState == INFECTED) {
 
