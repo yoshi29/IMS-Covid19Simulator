@@ -2,6 +2,7 @@
 using namespace std;
 
 int main() {
+    std::srand(std::time(0));
     std::vector<std::vector<int>> area( AREA_SIZE , vector<int> ( AREA_SIZE ));
     std::vector<Person*> people;
 
@@ -21,20 +22,27 @@ int main() {
     generatePeople(G16_24, &people);
     
     if (people.size() == 0) {
-        cout << "Scale too big, change it" << endl;
+        cout << "Zero people, change some parameters" << endl;
         return 1;
     }
     
     // Selecting infected ones
     for (int i = 0; i < START_INFECTED_CNT; i++) {
-        int random = rand() % (people.size() + 1);
-        people.at(random)->infectionState = INFECTED;
+        int random = rand() % (people.size());
+        people[random]->infectionState = INFECTED;
     }
 
 	// Move people to area
     for (int i = 0; i < people.size(); i++) {
         area[people[i]->homeX][people[i]->homeY]++;
     }
+
+    // Move random person to random place
+    // int random = rand() % (people.size());
+    // Person* selected = people[random];
+    // int X = rand() % (AREA_SIZE);
+    // int Y = rand() % (AREA_SIZE);
+    // selected->moveTo(X, Y);
 
     // for (int i = 0; i < area.size(); i++){
     //     for (int j = 0; i < area[i].size(); j++) {
@@ -53,8 +61,8 @@ void generatePeople(AGE_GROUP ageGroup, std::vector<Person*>* people) {
         Person* newPerson = new Person();
         newPerson->ageGroup = ageGroup;
         newPerson->vaccinationState = NOT_VACCINATED; // No one is vaccinated from start
-        newPerson->homeX = rand() % (AREA_SIZE);
-        newPerson->homeY = rand() % (AREA_SIZE);
+        newPerson->homeX = newPerson->currentX = rand() % (AREA_SIZE);
+        newPerson->homeY = newPerson->currentY = rand() % (AREA_SIZE);
         (*people).push_back(newPerson);
     }
 }

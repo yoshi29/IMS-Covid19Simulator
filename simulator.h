@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <ctime>
 
 int SCALE = 100; 
 int AREA_SIZE_NOT_SCALED = 496000; // Area of Prague in meters

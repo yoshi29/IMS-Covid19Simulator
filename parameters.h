@@ -30,21 +30,21 @@ enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 // Hospital
 #define HOSPITAL_PLACES 27751 // sum of https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece 
 
-// Number of people in age group according to https://www.czso.cz/staticke/animgraf/cz/index.html?lang=cz
+// Number of people in Prague https://www.czso.cz/staticke/animgraf/cz010/index.html?lang=cz
 static std::map<AGE_GROUP, int> START_AGE_GROUP_CNT {
-    { G16_24, 860000 },
-    { G25_29, 760000 },
-    { G30_34, 720000 },
-    { G35_39, 750000 },
-    { G40_44, 890000 },
-    { G45_49, 880000 },
-    { G50_54, 690000 },
-    { G55_59, 670000 },
-    { G60_64, 630000 },
-    { G65_69, 670000 },
-    { G70_74, 620000 }, 
-    { G75_79, 420000 }, 
-    { G80, 450000 }
+    { G16_24, 100000 },
+    { G25_29, 80000 },
+    { G30_34, 110000 },
+    { G35_39, 110000 },
+    { G40_44, 130000 },
+    { G45_49, 110000 },
+    { G50_54, 80000 },
+    { G55_59, 80000 },
+    { G60_64, 70000 },
+    { G65_69, 70000 },
+    { G70_74, 70000 }, 
+    { G75_79, 50000 }, 
+    { G80, 60000 }
 };
 
 static std::map<AGE_GROUP, float> HOSPITALIZATION_CHANCE {
