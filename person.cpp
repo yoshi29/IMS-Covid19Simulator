@@ -7,23 +7,24 @@
 //   kteří když jsou očkovaní, nemusí být v karanténě
 
 bool Person::tryToGetCovid(Person anotherPerson) {
-    if (anotherPerson.infectionState == INFECTED) { // TODO: distance
-        int infectionProbability = INFECTION_PROBABILITY;
+    // if (anotherPerson.infectionState == INFECTED) { // TODO: distance
+        // int infectionProbability = INFECTION_PROBABILITY_0M;
         
-        switch (vaccinationState) {
-            case DOSE_1:
-                infectionProbability *= DOSE_1_INFECTION_PREVENTION;
-                break;
-            case DOSE_2:
-                infectionProbability *= DOSE_2_INFECTION_PREVENTION;
-                break;
-            default: 
-                break;
-        }
-        return rand() < infectionProbability; // OK?
-    }
+        // switch (vaccinationState) {
+            // case DOSE_1:
+                // infectionProbability *= DOSE_1_INFECTION_PREVENTION;
+                // break;
+            // case DOSE_2:
+                // infectionProbability *= DOSE_2_INFECTION_PREVENTION;
+                // break;
+            // default: 
+                // break;
+        // }
+        // return rand() < infectionProbability; // OK?
+    // }
 
-    else return false; 
+    // else return false; 
+	return false; //TODO
 }
 
 void Person::moveTo(int X, int Y) {
