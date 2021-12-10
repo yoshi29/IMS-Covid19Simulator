@@ -1,5 +1,8 @@
 #pragma once
 #include "parameters.h"
+#include "area.h"
+#include <vector>
+#include <algorithm>
 
 class Person {
     public:
@@ -8,9 +11,20 @@ class Person {
         VACCINATION_STATE vaccinationState;
         int homeX, homeY;
         int currentX, currentY;
+        int destinationX, destinationY;
 
-        // Move person to location
-        void moveTo(int X, int Y);
+        // Move person towards destination
+        void moveToDestination();
+
+        // Set person's destination
+        void setDestination(int X, int Y);
+
+        // Removes person from area
+        void removeFromArea();
+
+        // Adds person to area
+        void addToArea();
+
         // Returns true if person was infected by another person
         bool tryToGetCovid(Person anotherPerson);
 

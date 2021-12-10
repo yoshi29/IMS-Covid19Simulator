@@ -27,24 +27,56 @@ bool Person::tryToGetCovid(Person anotherPerson) {
 	return false; //TODO
 }
 
-void Person::moveTo(int X, int Y) {
-    
-    while (currentX != X || currentY != Y) {
-        if (currentX < X) currentX++; // →
-        else if (currentX > X) currentX--; // ←
+void Person::moveToDestination()
+{
+    removeFromArea();
 
-        if (currentY < Y) currentY++; // ↓
-        else if (currentY > Y) currentY--; // ↑
+    // Change position
+    if (currentX < destinationX) currentX++; // →
+    else if (currentX > destinationX) currentX--; // ←
 
-        // zrušit svou starou pozici v mapě
-        // Zaznamenat se na posunutou pozici v mapě
-        // pokud na nové pozici už někdo je: (vyřešit, aby na jednom poli mohlo být více lidí)
-        //      zavolat tryGetCovid
-        // pokčačovat další iterací
+    if (currentY < destinationY) currentY++; // ↓
+    else if (currentY > destinationY) currentY--; // ↑
 
-        std::cout << "[" + std::to_string(currentX) + "," + std::to_string(currentY) + "]" << std::endl;
+    // Add to area
+    addToArea();
+
+    if (currentX == destinationX && currentY == destinationY)
+    {
+        destinationX = -1;
+        destinationY = -1;
     }
+
+    //std::cout << "[" + std::to_string(currentX) + "," + std::to_string(currentY) + "]" << std::endl;
 }
+
+void Person::setDestination(int X, int Y)
+{
+    destinationX = X;
+    destinationY = Y;
+
+    if (X >= AREA_SIDE_SIZE)
+        destinationX = AREA_SIDE_SIZE - 1;
+    else if (X < 0)
+        destinationX = 0;
+
+    if (Y >= AREA_SIDE_SIZE)
+        destinationY = AREA_SIDE_SIZE - 1;
+    else if (Y < 0)
+        destinationY = 0;
+}
+
+void Person::removeFromArea()
+{
+    // TODO: Reference (https://stackoverflow.com/a/3385251)
+    area[currentX][currentY].erase(std::remove(area[currentX][currentY].begin(), area[currentX][currentY].end(), this), area[currentX][currentY].end());
+}
+
+void Person::addToArea()
+{
+    area[currentX][currentY].push_back(this);
+}
+
 
 // bool Person::tryToMoveToHospital() {
 //     if (infectionState == INFECTED) {

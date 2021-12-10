@@ -3,12 +3,11 @@ using namespace std;
 
 int main()
 {
-    return open_window(simulator_main, AREA_SIZE);
+    return open_window(simulator_main, AREA_SIDE_SIZE);
 }
 
 int simulator_main() {
     std::srand(std::time(0));
-    std::vector<std::vector<int>> area( AREA_SIZE , vector<int> ( AREA_SIZE ));
     std::vector<Person*> people;
 
     // Generating people
@@ -37,11 +36,6 @@ int simulator_main() {
         people[random]->infectionState = INFECTED;
     }
 
-	// Move people to area
-    for (int i = 0; i < people.size(); i++) {
-        area[people[i]->homeX][people[i]->homeY]++;
-    }
-
     // Move random person to random place
     // int random = rand() % (people.size());
     // Person* selected = people[random];
@@ -65,36 +59,61 @@ int simulator_main() {
             refresh_window(&people);
         }
 
-        // Test - start moving every person to middle
-        for (int i = 0; i < people.size(); i++)
+        for (int j = 0; j < people.size(); j++)
         {
-            if (people[i]->currentX < AREA_SIZE / 2)
-                (people[i]->currentX)++;
-            else
-                (people[i]->currentX)--;
+            Person *person = people[j];
 
-            if (people[i]->currentY < AREA_SIZE / 2)
-                (people[i]->currentY)++;
-            else
-                (people[i]->currentY)--;
+            if (person->infectionState == DEAD)
+                continue;
+
+            // TODO: Check if person is in hospital
+
+            // Person has no destination, set a new one
+            if (person->destinationX == -1 || person->destinationY == -1)
+            {
+                if (random_chance() <= PERSON_DEST_PROBABILITY_HOME)
+                    person->setDestination(person->homeX, person->homeY);
+                else
+                    person->setDestination(rand() % (AREA_SIDE_SIZE), rand() % (AREA_SIDE_SIZE));
+            }
+
+            person->moveToDestination();
         }
     }
+
+    std::cout << "Simulation completed" << std::endl;
 
     return 1;
 }
 
-void generatePeople(AGE_GROUP ageGroup, std::vector<Person*>* people) {
-    if ((START_AGE_GROUP_CNT[ageGroup] / SCALE) == 0) return;
+
+void generatePeople(AGE_GROUP ageGroup, std::vector<Person*> *people) {
+    if ((START_AGE_GROUP_CNT[ageGroup] / SCALE) <= 0) return;
 
     for (int j = 0; j < (START_AGE_GROUP_CNT[ageGroup] / SCALE); j++) {
         Person* newPerson = new Person();
         newPerson->ageGroup = ageGroup;
         newPerson->infectionState = NOT_INFECTED;
         newPerson->vaccinationState = NOT_VACCINATED; // No one is vaccinated from start
-        newPerson->homeX = newPerson->currentX = rand() % (AREA_SIZE);
-        newPerson->homeY = newPerson->currentY = rand() % (AREA_SIZE);
-        newPerson->currentX = newPerson->homeX;
-        newPerson->currentY = newPerson->homeY;
+
+        // Random home
+        newPerson->homeX = rand() % (AREA_SIDE_SIZE);
+        newPerson->homeY = rand() % (AREA_SIDE_SIZE);
+
+        // Random starting location
+        newPerson->currentX = rand() % (AREA_SIDE_SIZE);
+        newPerson->currentY = rand() % (AREA_SIDE_SIZE);
+
+        // No destination
+        newPerson->destinationX = -1;
+        newPerson->destinationY = -1;
+
         (*people).push_back(newPerson);
+        newPerson->addToArea();
     }
+}
+
+float random_chance()
+{
+    return (float)(rand()) / (float)(RAND_MAX);
 }

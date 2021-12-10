@@ -8,6 +8,15 @@ enum AGE_GROUP { G16_24, G25_29, G30_34, G35_39, G40_44, G45_49, G50_54, G55_59,
 enum INFECTION_STATE { NOT_INFECTED, INFECTED, IN_HOSPITAL, IMMUNE, DEAD };
 enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 
+#define SCALE 100
+
+// Probability that person's next destination will be his home 
+#define PERSON_DEST_PROBABILITY_HOME 0.2f
+
+// Area of Prague = 496000m2 (22271m x 22271m)
+#define AREA_SIDE_SIZE_NOT_SCALED 22271
+#define AREA_SIDE_SIZE (int)(AREA_SIDE_SIZE_NOT_SCALED / SCALE)
+
 // Infection parameters 
 // https://aip.scitation.org/doi/10.1063/5.0041596
 #define INFECTION_PROBABILITY_0M 0.63f
