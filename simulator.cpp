@@ -9,6 +9,7 @@ int main()
 int simulator_main() {
     std::srand(std::time(0));
     std::vector<Person*> people;
+    Statistics* statistics = new Statistics();
 
     // Generating people
     generatePeople(G80, &people);  
@@ -34,6 +35,8 @@ int simulator_main() {
     for (int i = 0; i < START_INFECTED_CNT; i++) {
         int random = rand() % (people.size());
         people[random]->infectionState = INFECTED;
+        people[random]->recoverOnIteration = DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL * SECONDS_IN_DAY;
+        statistics->addInfected();
     }
 
     // Move random person to random place
@@ -77,7 +80,8 @@ int simulator_main() {
                     person->setDestination(rand() % (AREA_SIDE_SIZE), rand() % (AREA_SIDE_SIZE));
             }
 
-            person->moveToDestination();
+            person->moveToDestination(i);
+            person->tryToRecover(i);
         }
     }
 

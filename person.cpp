@@ -6,28 +6,7 @@
 // - Budeme pracovat s tím, že někde má x lidí domov a tam se zdržuje když je nakažený - může i tak nakazit členy domácnosti, 
 //   kteří když jsou očkovaní, nemusí být v karanténě
 
-bool Person::tryToGetCovid(Person anotherPerson) {
-    // if (anotherPerson.infectionState == INFECTED) { // TODO: distance
-        // int infectionProbability = INFECTION_PROBABILITY_0M;
-        
-        // switch (vaccinationState) {
-            // case DOSE_1:
-                // infectionProbability *= DOSE_1_INFECTION_PREVENTION;
-                // break;
-            // case DOSE_2:
-                // infectionProbability *= DOSE_2_INFECTION_PREVENTION;
-                // break;
-            // default: 
-                // break;
-        // }
-        // return rand() < infectionProbability; // OK?
-    // }
-
-    // else return false; 
-	return false; //TODO
-}
-
-void Person::moveToDestination()
+void Person::moveToDestination(int iteration)
 {
     removeFromArea();
 
@@ -41,12 +20,13 @@ void Person::moveToDestination()
     // Add to area
     addToArea();
 
+    circle_check(currentX, currentY, iteration);
+
     if (currentX == destinationX && currentY == destinationY)
     {
         destinationX = -1;
         destinationY = -1;
     }
-
     //std::cout << "[" + std::to_string(currentX) + "," + std::to_string(currentY) + "]" << std::endl;
 }
 
@@ -77,11 +57,88 @@ void Person::addToArea()
     area[currentX][currentY].push_back(this);
 }
 
+void Person::circle_check(int currentX, int currentY, int iteration) {
+    int maxDistance = INFECTION_DISTANCE_MAX;
 
-// bool Person::tryToMoveToHospital() {
-//     if (infectionState == INFECTED) {
+    for (int x = currentX-maxDistance; x <= currentX+maxDistance; x++) {
+        for (int y = currentY-maxDistance; y <= currentY+maxDistance; y++) {
+            //Boundary check
+            if (x < 0 || y < 0 || x >= AREA_SIDE_SIZE || y >=AREA_SIDE_SIZE) continue;
+            int a = abs(currentX - x);
+            int b = abs(currentY - y);
+            float distance = sqrt(a*a + b*b);
+            if (distance <= (float)maxDistance) {
+                check_position(x, y, distance, iteration);
+            }
+        }
+    }
+}
 
-//     }
+void Person::check_position(int X, int Y, int distance, int iteration) {
+    int size = area[X][Y].size();
 
-//     else return false; 
-// }
+    for (int j = 0; j < size; j++) {
+        Person* anotherPerson = area[X][Y][j];
+        if (anotherPerson != this) {
+            if (tryToGetCovid(anotherPerson, distance) == true) {
+                infectionState = INFECTED;
+                //TODO: toto upravit, až bude vyřešené, jaká časová jednotka je cyklus
+                bool inHospital = tryToMoveToHospital();
+                if (inHospital) {
+                    //TODO: přesun člověka do nemocnice + zabrat místo v nemocnici
+                    int min = iteration + DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN * SECONDS_IN_DAY;
+                    int max = iteration + DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX * SECONDS_IN_DAY;
+                    recoverOnIteration = rand()%(max-min + 1) + min; 
+                }
+                else { //TODO: Tady možná taky nějaký rozsah
+                    recoverOnIteration = iteration + DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL * SECONDS_IN_DAY;
+                }
+            };
+        }
+    }
+}
+
+bool Person::tryToGetCovid(Person* anotherPerson, int distance) {
+    if (infectionState == NOT_INFECTED && anotherPerson->infectionState == INFECTED) {
+        float infectionProbability;
+        if (distance == 0) {
+            infectionProbability = INFECTION_PROBABILITY_0M;
+        }
+        else if (distance == 1) {
+            infectionProbability = INFECTION_PROBABILITY_1M;
+        }
+        else if (distance <= INFECTION_DISTANCE_MAX) {
+            infectionProbability = INFECTION_PROBABILITY_UNTIL_MAX_M;
+        }
+        
+        switch (vaccinationState) {
+            case DOSE_1:
+                infectionProbability *= DOSE_1_INFECTION_PREVENTION;
+                break;
+            case DOSE_2:
+                infectionProbability *= DOSE_2_INFECTION_PREVENTION;
+                break;
+            default: 
+                break;
+        }
+        return random_chance() < infectionProbability; // OK?
+    }
+
+    return false; 
+}
+
+bool Person::tryToMoveToHospital() {
+    float hospitalizationChance = HOSPITALIZATION_CHANCE[ageGroup]; 
+    return random_chance() < hospitalizationChance;
+}
+
+void Person::tryToRecover(int iteration) {
+    if (infectionState == INFECTED && recoverOnIteration == iteration) {
+        infectionState = IMMUNE;
+    }
+}
+
+float Person::random_chance()
+{
+    return (float)(rand()) / (float)(RAND_MAX);
+}

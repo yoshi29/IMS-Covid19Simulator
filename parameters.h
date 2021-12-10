@@ -10,6 +10,8 @@ enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 
 #define SCALE 100
 
+#define SECONDS_IN_DAY 86400
+
 // Probability that person's next destination will be his home 
 #define PERSON_DEST_PROBABILITY_HOME 0.2f
 
