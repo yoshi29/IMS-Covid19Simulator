@@ -1,20 +1,28 @@
 #pragma once
 #include "parameters.h"
-#include "area.h"
+#include "shared.h"
+#include "random_gen.h"
 #include <vector>
 #include <algorithm>
 #include <math.h> 
 #include <fstream>
+
+enum person_action { PA_IDLE, PA_GET_INFECTED, PA_GO_TO_QUARANTINE, PA_GO_TO_HOSPITAL, PA_RECOVER,
+    PA_GET_DOSE_1, PA_GET_DOSE_2, PA_DIE };
 
 class Person {
     public:
         AGE_GROUP ageGroup;
         INFECTION_STATE infectionState;
         VACCINATION_STATE vaccinationState;
+        int vaccinationIteration;
         int homeX, homeY;
         int currentX, currentY;
         int destinationX, destinationY;
-        int recoverOnIteration;
+        int nextLocationIteration; // Iteration count when next location should be set
+        int actionIteration; // Iteration count when action should be performed
+        person_action action;
+        bool hasToBeHospitalized;
 
         // Move person towards destination
         void moveToDestination(int iteration);
@@ -29,21 +37,25 @@ class Person {
         void addToArea();
 
         // Returns true if person was infected by another person
-        bool tryToGetCovid(Person* anotherPerson, int distance);
+        bool tryToGetInfected(Person* anotherPerson, int distance);
 
-        // Returns true if person recover from ilness
-        void tryToRecover(int iteration);
+        void getInfected(int iteration);
 
-        // Returns true if person was moved to hospital
-        bool tryToMoveToHospital();
+        bool tryToGetHospitalized();
+
+        void goToHospital(int iteration);
+
+        void goToQuarantine(int iteration);
+
+        void recover(int iteration);
 
         // Returns true if person died
         bool tryToDie();
 
-        float random_chance();
+        void die();
 
         // Checks a circular area with a radius given by INFECTION_DISTANCE_MAX to see if a person gets infected from someone else
-        void circle_check(int currentX, int currentY, int iteration);
+        void circle_check(int iteration);
 
         // Checks the area's cell to see if the person gets infected from someone else
         void check_position(int X, int Y, int distance, int iteration);

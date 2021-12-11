@@ -1,15 +1,46 @@
 #include "simulator.h"
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc > 2)
+    {
+        cerr << "Error - Wrong arguments. Use '--help' for help" << endl;
+        return EXIT_FAILURE;
+    }
+    else if (argc == 2)
+    {
+        string argument = argv[1];
+
+        if (argument == "--help")
+        {
+            cout << "Usage: ./covidSimulator [--no-gui | --help]" << endl;
+            cout << "Arguments:" << endl;
+            cout << "\t--no-gui\tRun simulation without GUI" << endl;
+            cout << "\t--help\tPrints this message" << endl;
+            return EXIT_SUCCESS;
+        }
+        else if (argument == "--no-gui")
+        {
+            return simulator(false);
+        }
+        else
+        {
+            cerr << "Error - Wrong arguments. Use '--help' for help" << endl;
+            return EXIT_FAILURE;
+        }
+    }
+
     return open_window(simulator_main, AREA_SIDE_SIZE);
 }
 
-int simulator_main() {
-    std::srand(std::time(0));
+int simulator_main()
+{
+    return simulator(true);
+}
+
+int simulator(bool gui) {
     std::vector<Person*> people;
-    Statistics* statistics = new Statistics();
 
     // Generating people
     generatePeople(G80, &people);  
@@ -26,70 +57,143 @@ int simulator_main() {
     generatePeople(G25_29, &people);
     generatePeople(G16_24, &people);
     
-    if (people.size() == 0) {
+    int num_of_people = people.size();
+
+    if (num_of_people == 0) {
         cout << "Zero people, change some parameters" << endl;
         return 1;
     }
     
     // Selecting infected ones
     for (int i = 0; i < START_INFECTED_CNT; i++) {
-        int random = rand() % (people.size());
-        people[random]->infectionState = INFECTED;
-        people[random]->recoverOnIteration = DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL * SECONDS_IN_DAY;
-        statistics->addInfected();
+        int random = randomIntFromRange(0, num_of_people - 1);
+        people[random]->actionIteration = 0;
+        people[random]->action = PA_GET_INFECTED;
     }
 
-    // Move random person to random place
-    // int random = rand() % (people.size());
-    // Person* selected = people[random];
-    // int X = rand() % (AREA_SIZE);
-    // int Y = rand() % (AREA_SIZE);
-    // selected->moveTo(X, Y);
-
-    // for (int i = 0; i < area.size(); i++){
-    //     for (int j = 0; i < area[i].size(); j++) {
-    //         cout << area[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
+    statistics->addUninfected(num_of_people - START_INFECTED_CNT);
+    statistics->addInfected(START_INFECTED_CNT);
 
     // Run simulation
-    for (int i = 0; i < SIMULATED_CYCLES; i++)
+    std::cout << "Simulation started" << std::endl;
+    for (int iteration = 0; iteration < SIMULATED_CYCLES; iteration++)
     {
-        // Refresh UI
-        if (i % REFRESH_INTERVAL == 0)
-        {
-            refresh_window(&people);
-        }
+        // TODO: Oèkování
 
-        for (int j = 0; j < people.size(); j++)
+        for (int j = 0; j < num_of_people; j++)
         {
             Person *person = people[j];
 
-            if (person->infectionState == DEAD)
+            if (iteration == person->actionIteration)
+            {
+                switch (person->action)
+                {
+                    case PA_DIE:
+                        statistics->addDead();
+                        statistics->removeInfected();
+                        if (person->infectionState == IN_HOSPITAL)
+                            statistics->removeInHospital();
+                        person->die();
+                        break;
+
+                    case PA_GET_INFECTED:
+                        statistics->addInfected();
+                        statistics->removeUninfected();
+                        person->getInfected(iteration);
+                        break;
+
+                    case PA_GO_TO_QUARANTINE:
+                        person->goToQuarantine(iteration);
+                        break;
+
+                    case PA_GO_TO_HOSPITAL:
+                        person->hasToBeHospitalized = true;
+                        if (hospitalPlaces > 0)
+                        {
+                            statistics->addInHospital();
+                            person->goToHospital(iteration);
+                            hospitalPlaces--;
+                        }
+                        else
+                        {
+                            if (iteration % SECONDS_IN_DAY == 0 && person->tryToDie())
+                            {
+                                statistics->removeInfected();
+                                statistics->addDead();
+                                person->die();
+                            }
+                            else
+                            {
+                                person->actionIteration = iteration + 1;
+                            }
+                        }
+                        break;
+
+                    case PA_RECOVER:
+                        statistics->removeInfected();
+                        statistics->addRecovered();
+                        if (person->hasToBeHospitalized)
+                        {
+                            statistics->removeInHospital();
+                            person->hasToBeHospitalized = false;
+                            hospitalPlaces++;
+                        }
+                        person->recover(iteration);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            if (person->infectionState == DEAD || person->infectionState == IN_QUARANTINE || person->infectionState == IN_HOSPITAL)
                 continue;
 
-            // TODO: Check if person is in hospital
+            // Check surroundings, try get infected
+            person->circle_check(iteration);
 
             // Person has no destination, set a new one
             if (person->destinationX == -1 || person->destinationY == -1)
             {
-                if (random_chance() <= PERSON_DEST_PROBABILITY_HOME)
+                if (iteration < person->nextLocationIteration)
+                    continue;
+
+                if (tryEvent(PERSON_DEST_PROBABILITY_HOME))
                     person->setDestination(person->homeX, person->homeY);
                 else
-                    person->setDestination(rand() % (AREA_SIDE_SIZE), rand() % (AREA_SIDE_SIZE));
+                    person->setDestination(randomIntFromRange(0, AREA_SIDE_SIZE - 1), randomIntFromRange(0, AREA_SIDE_SIZE - 1));
             }
 
-            person->moveToDestination(i);
-            person->tryToRecover(i);
+            person->moveToDestination(iteration);
         }
+
+        // Refresh UI
+        if (gui && iteration % REFRESH_INTERVAL == 0)
+        {
+            refresh_window(&people);
+        }
+
+        if (iteration % STATS_INTERVAL == 0)
+        {
+            printf("[%d] - Uninfected: %d, Infected: %d, Hospitalized: %d, Dead: %d\n", iteration,
+                statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getInHospitalCnt(),
+                statistics->getDeadCnt());
+        }
+
     }
 
-    std::cout << "Simulation completed" << std::endl;
+    if (gui)
+        refresh_window(&people);
 
-    return 1;
+    std::cout << "Simulation finished!" << std::endl;
+    std::cout << "Final statistics:" << std::endl;
+    printf("Uninfected: %d\nInfected: %d\nOverall infected: %d\nHospitalized: %d\nDead: %d\n",
+        statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getOverallInfectedCnt(),
+        statistics->getInHospitalCnt(), statistics->getDeadCnt());
+
+
+    return EXIT_SUCCESS;
 }
-
 
 void generatePeople(AGE_GROUP ageGroup, std::vector<Person*> *people) {
     if ((START_AGE_GROUP_CNT[ageGroup] / SCALE) <= 0) return;
@@ -99,14 +203,19 @@ void generatePeople(AGE_GROUP ageGroup, std::vector<Person*> *people) {
         newPerson->ageGroup = ageGroup;
         newPerson->infectionState = NOT_INFECTED;
         newPerson->vaccinationState = NOT_VACCINATED; // No one is vaccinated from start
+        newPerson->vaccinationIteration = -1;
+        newPerson->nextLocationIteration = -1;
+        newPerson->actionIteration = -1; // No action
+        newPerson->action = PA_IDLE;
+        newPerson->hasToBeHospitalized = false;
 
         // Random home
-        newPerson->homeX = rand() % (AREA_SIDE_SIZE);
-        newPerson->homeY = rand() % (AREA_SIDE_SIZE);
+        newPerson->homeX = randomIntFromRange(0, AREA_SIDE_SIZE - 1);
+        newPerson->homeY = randomIntFromRange(0, AREA_SIDE_SIZE - 1);
 
         // Random starting location
-        newPerson->currentX = rand() % (AREA_SIDE_SIZE);
-        newPerson->currentY = rand() % (AREA_SIDE_SIZE);
+        newPerson->currentX = randomIntFromRange(0, AREA_SIDE_SIZE - 1);
+        newPerson->currentY = randomIntFromRange(0, AREA_SIDE_SIZE - 1);
 
         // No destination
         newPerson->destinationX = -1;
@@ -115,9 +224,4 @@ void generatePeople(AGE_GROUP ageGroup, std::vector<Person*> *people) {
         (*people).push_back(newPerson);
         newPerson->addToArea();
     }
-}
-
-float random_chance()
-{
-    return (float)(rand()) / (float)(RAND_MAX);
 }

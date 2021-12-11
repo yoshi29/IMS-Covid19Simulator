@@ -17,15 +17,13 @@ void Person::moveToDestination(int iteration)
     if (currentY < destinationY) currentY++; // ↓
     else if (currentY > destinationY) currentY--; // ↑
 
-    // Add to area
     addToArea();
-
-    circle_check(currentX, currentY, iteration);
 
     if (currentX == destinationX && currentY == destinationY)
     {
         destinationX = -1;
         destinationY = -1;
+        nextLocationIteration = iteration + 1 + randomIntFromRange(PERSON_NEXT_DEST_CYCLES_MIN, PERSON_NEXT_DEST_CYCLES_MAX);
     }
     //std::cout << "[" + std::to_string(currentX) + "," + std::to_string(currentY) + "]" << std::endl;
 }
@@ -57,7 +55,7 @@ void Person::addToArea()
     area[currentX][currentY].push_back(this);
 }
 
-void Person::circle_check(int currentX, int currentY, int iteration) {
+void Person::circle_check(int iteration) {
     int maxDistance = INFECTION_DISTANCE_MAX;
 
     for (int x = currentX-maxDistance; x <= currentX+maxDistance; x++) {
@@ -80,27 +78,18 @@ void Person::check_position(int X, int Y, int distance, int iteration) {
     for (int j = 0; j < size; j++) {
         Person* anotherPerson = area[X][Y][j];
         if (anotherPerson != this) {
-            if (tryToGetCovid(anotherPerson, distance) == true) {
-                infectionState = INFECTED;
-                //TODO: toto upravit, až bude vyřešené, jaká časová jednotka je cyklus
-                bool inHospital = tryToMoveToHospital();
-                if (inHospital) {
-                    //TODO: přesun člověka do nemocnice + zabrat místo v nemocnici
-                    int min = iteration + DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN * SECONDS_IN_DAY;
-                    int max = iteration + DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX * SECONDS_IN_DAY;
-                    recoverOnIteration = rand()%(max-min + 1) + min; 
-                }
-                else { //TODO: Tady možná taky nějaký rozsah
-                    recoverOnIteration = iteration + DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL * SECONDS_IN_DAY;
-                }
+            if (tryToGetInfected(anotherPerson, distance)) {
+                actionIteration = iteration + 1;
+                action = PA_GET_INFECTED;
+                return;
             };
         }
     }
 }
 
-bool Person::tryToGetCovid(Person* anotherPerson, int distance) {
-    if (infectionState == NOT_INFECTED && anotherPerson->infectionState == INFECTED) {
-        float infectionProbability;
+bool Person::tryToGetInfected(Person* anotherPerson, int distance) {
+    if ((infectionState == NOT_INFECTED || infectionState == RECOVERED) && anotherPerson->infectionState == INFECTED) {
+        float infectionProbability = 0.0;
         if (distance == 0) {
             infectionProbability = INFECTION_PROBABILITY_0M;
         }
@@ -113,32 +102,104 @@ bool Person::tryToGetCovid(Person* anotherPerson, int distance) {
         
         switch (vaccinationState) {
             case DOSE_1:
-                infectionProbability *= DOSE_1_INFECTION_PREVENTION;
+                infectionProbability *= 1.0 - DOSE_1_INFECTION_PREVENTION;
                 break;
             case DOSE_2:
-                infectionProbability *= DOSE_2_INFECTION_PREVENTION;
+                infectionProbability *= 1.0 - DOSE_2_INFECTION_PREVENTION;
                 break;
-            default: 
+            default:
+                if (infectionState == RECOVERED)
+                    infectionProbability *= 1.0 - ANTIBODIES_INFECTION_PREVENTION;
                 break;
         }
-        return random_chance() < infectionProbability; // OK?
+        return tryEvent(infectionProbability);
     }
 
     return false; 
 }
 
-bool Person::tryToMoveToHospital() {
-    float hospitalizationChance = HOSPITALIZATION_CHANCE[ageGroup]; 
-    return random_chance() < hospitalizationChance;
+// Člověk byl nakažen, začíná inkubační doba.
+void Person::getInfected(int iteration)
+{
+    infectionState = INFECTED;
+    int incubationDays = randomIntFromRange(INFECTION_INCUBATION_DAYS_MIN, INFECTION_INCUBATION_DAYS_MAX);
+    actionIteration = iteration + incubationDays * SECONDS_IN_DAY;
+    
+    if (tryToGetHospitalized())
+        action = PA_GO_TO_HOSPITAL;
+    else
+        action = PA_GO_TO_QUARANTINE;
 }
 
-void Person::tryToRecover(int iteration) {
-    if (infectionState == INFECTED && recoverOnIteration == iteration) {
-        infectionState = IMMUNE;
+bool Person::tryToGetHospitalized()
+{
+    float hospitalizationProbability = HOSPITALIZATION_CHANCE[ageGroup];
+    
+    switch (vaccinationState) {
+        case DOSE_1:
+            hospitalizationProbability *= 1.0 - DOSE_1_HOSPITAL_PREVENTION;
+            break;
+        case DOSE_2:
+            hospitalizationProbability *= 1.0 - DOSE_2_HOSPITAL_PREVENTION;
+            break;
+        default:
+            if (infectionState == RECOVERED)
+                hospitalizationProbability *= 1.0 - ANTIBODIES_HOSPITAL_PREVENTION;
+            break;
+    }
+    return tryEvent(hospitalizationProbability);
+}
+
+void Person::goToHospital(int iteration)
+{
+    infectionState = IN_HOSPITAL;
+    int daysInHospital = randomIntFromRange(DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN, DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX);
+    actionIteration = iteration + daysInHospital * SECONDS_IN_DAY;
+    if (tryToDie())
+    {
+        action = PA_DIE;
+    }
+    else
+    {
+        action = PA_RECOVER;
     }
 }
 
-float Person::random_chance()
+void Person::goToQuarantine(int iteration)
 {
-    return (float)(rand()) / (float)(RAND_MAX);
+    infectionState = IN_QUARANTINE;
+    actionIteration = iteration + DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL * SECONDS_IN_DAY;
+    action = PA_RECOVER;
+}
+
+void Person::recover(int iteration)
+{
+    infectionState = RECOVERED;
+    actionIteration = iteration + 1;
+    action = PA_IDLE;
+}
+
+bool Person::tryToDie() {
+    float deathProbability = DEATH_CHANCE[ageGroup];
+    
+    switch (vaccinationState) {
+        case DOSE_1:
+            deathProbability *= 1.0 - DOSE_1_DEATH_PREVENTION;
+            break;
+        case DOSE_2:
+            deathProbability *= 1.0 - DOSE_2_DEATH_PREVENTION;
+            break;
+        default:
+            if (infectionState == RECOVERED)
+                deathProbability *= 1.0 - ANTIBODIES_DEATH_PREVENTION;
+            break;
+    }
+    return tryEvent(deathProbability);
+}
+
+void Person::die()
+{
+    infectionState = DEAD;
+    actionIteration = -1;
+    action = PA_IDLE;
 }

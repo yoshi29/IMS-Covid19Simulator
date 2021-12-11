@@ -70,10 +70,13 @@ void draw_person(cairo_t *cr, GtkWidget *widget, Person *p)
         cairo_set_source_rgba(cr, 0.0, 0.7, 0.0, 0.7);
         break;
     case IN_HOSPITAL:
+        cairo_set_source_rgba(cr, 0.5, 0.0, 0.0, 0.5);
+        break;
+    case IN_QUARANTINE:
         cairo_set_source_rgba(cr, 0.5, 0.0, 0.5, 0.5);
         break;
-    case IMMUNE:
-        cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.8);
+    case RECOVERED:
+        cairo_set_source_rgba(cr, 0.8, 0.8, 0.0, 0.8);
         break;
     case DEAD:
         cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
