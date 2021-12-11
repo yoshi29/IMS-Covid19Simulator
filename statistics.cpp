@@ -26,7 +26,7 @@ void Statistics::addUninfected() {
 }
 
 void Statistics::removeUninfected(int cnt) {
-    infected -= cnt;
+    uninfected -= cnt;
 }
 
 void Statistics::removeUninfected() {
@@ -83,6 +83,27 @@ void Statistics::addDead()
     addDead(1);
 }
 
+void Statistics::addVaccinatedDose1(int cnt)
+{
+    vaccinatedDose1 += cnt;
+}
+
+void Statistics::addVaccinatedDose1()
+{
+    addVaccinatedDose1(1);
+}
+
+void Statistics::addVaccinatedDose2(int cnt)
+{
+    vaccinatedDose2 += cnt;
+}
+
+void Statistics::addVaccinatedDose2()
+{
+    addVaccinatedDose2(1);
+}
+
+
 
 int Statistics::getUninfectedCnt()
 {
@@ -112,4 +133,14 @@ int Statistics::getRecoveredCnt()
 int Statistics::getDeadCnt()
 {
     return dead;
+}
+
+int Statistics::getVaccinatedDose1()
+{
+    return vaccinatedDose1;
+}
+
+int Statistics::getVaccinatedDose2()
+{
+    return vaccinatedDose2;
 }

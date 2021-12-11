@@ -83,8 +83,9 @@ int simulator(bool gui) {
         }
     }
 
-    statistics->addUninfected(num_of_people - START_INFECTED_CNT);
-    statistics->addInfected(START_INFECTED_CNT);
+    statistics->addUninfected(num_of_people - VACCINATED_PEOPLE_FROM_START_DOSE_1);
+    statistics->addVaccinatedDose1(VACCINATED_PEOPLE_FROM_START_DOSE_1);
+    statistics->addVaccinatedDose2(VACCINATED_PEOPLE_FROM_START_DOSE_2);
 
     // Run simulation
     std::cout << "Simulation started" << std::endl;
@@ -102,7 +103,10 @@ int simulator(bool gui) {
                 if (person->infectionState == IN_QUARANTINE || person->infectionState == IN_HOSPITAL)
                     person->vaccinationDose1Iteration = person->actionIteration;
                 else
+                {
                     person->vaccinationState = DOSE_1; // Infected person in incubation period can also get the vaccine
+                    statistics->addVaccinatedDose1();
+                }
             }
 
             if (iteration == person->vaccinationDose2Iteration)
@@ -110,7 +114,10 @@ int simulator(bool gui) {
                 if (person->infectionState == IN_QUARANTINE || person->infectionState == IN_HOSPITAL)
                     person->vaccinationDose2Iteration = person->actionIteration;
                 else
+                {
                     person->vaccinationState = DOSE_2; // Infected person in incubation period can also get the vaccine
+                    statistics->addVaccinatedDose2();
+                }
             }
 
             if (iteration == person->actionIteration)
@@ -205,9 +212,9 @@ int simulator(bool gui) {
 
         if (iteration % STATS_INTERVAL == 0)
         {
-            printf("[%d] - Uninfected: %d, Infected: %d, Hospitalized: %d, Dead: %d\n", iteration,
-                statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getInHospitalCnt(),
-                statistics->getDeadCnt());
+            printf("[%d] - Uninfected: %d, Infected: %d, Overall infected: %d, Hospitalized: %d, Vaccinated by first dose: %d, Vaccinated by second dose: %d, Dead: %d\n",
+                iteration, statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getOverallInfectedCnt(),
+                statistics->getInHospitalCnt(), statistics->getVaccinatedDose1(), statistics->getVaccinatedDose2(), statistics->getDeadCnt());
         }
 
     }
@@ -217,9 +224,9 @@ int simulator(bool gui) {
 
     std::cout << "Simulation finished!" << std::endl;
     std::cout << "Final statistics:" << std::endl;
-    printf("Uninfected: %d\nInfected: %d\nOverall infected: %d\nHospitalized: %d\nDead: %d\n",
-        statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getOverallInfectedCnt(),
-        statistics->getInHospitalCnt(), statistics->getDeadCnt());
+    printf("\tUninfected: %d\n\tInfected: %d\n\tOverall infected: %d\n\tHospitalized: %d\n\tVaccinated by first dose: %d\n\tVaccinated by second dose: %d\n\tDead: %d\n",
+        statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getOverallInfectedCnt(), statistics->getInHospitalCnt(),
+        statistics->getVaccinatedDose1(), statistics->getVaccinatedDose2(), statistics->getDeadCnt());
 
 
     return EXIT_SUCCESS;

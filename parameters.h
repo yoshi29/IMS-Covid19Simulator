@@ -11,8 +11,8 @@
 #define PERSON_DEST_PROBABILITY_HOME 0.2f
 
 // Minimum and maximum cycles/seconds before next move
-#define PERSON_WAIT_TIME_MIN 1 // 1 second
-#define PERSON_WAIT_TIME_MAX 3600 // 1 hour
+#define PERSON_WAIT_TIME_MIN 30 // 30 seconds
+#define PERSON_WAIT_TIME_MAX 7200 // 2 hours
 
 // What day of simulation should vaccination start (1. dose)
 #define VACCINATION_START_DAY_DOSE_1 5
@@ -34,9 +34,7 @@
 #define VACCINATED_PEOPLE_FROM_START_DOSE_2 0
 
 
-// Area of Prague = 496000m2 (22271m x 22271m)
-#define AREA_SIDE_SIZE_NOT_SCALED 5000000 //22271
-#define AREA_SIDE_SIZE (int)(AREA_SIDE_SIZE_NOT_SCALED / SCALE)
+#define AREA_SIDE_SIZE 5000
 
 // Infection parameters 
 // https://aip.scitation.org/doi/10.1063/5.0041596
@@ -76,7 +74,7 @@
 #define ANTIBODIES_DEATH_PREVENTION 0 // TODO
 
 // Hospital
-#define HOSPITAL_PLACES 27751 // sum of https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece 
+#define HOSPITAL_PLACES 30 //27751 // sum of https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece 
 
 
 enum AGE_GROUP { G16_24, G25_29, G30_34, G35_39, G40_44, G45_49, G50_54, G55_59, G60_64, G65_69, G70_74, G75_79, G80 }; // Groups according to https://onemocneni-aktualne.mzcr.cz/covid-19/prehledy-khs
@@ -99,6 +97,9 @@ static std::map<AGE_GROUP, int> START_AGE_GROUP_CNT {
     { G75_79, 50000 }, 
     { G80, 60000 }
 };
+
+// Vìkové složení obyvatelstva ÈR v procentech (31.12.2020) (https://www.czso.cz/csu/czso/vekove-slozeni-obyvatelstva-2020)
+// TODO
 
 static std::map<AGE_GROUP, float> HOSPITALIZATION_CHANCE {
     { G16_24, 0.00573f }, // 40858 - number of infected
