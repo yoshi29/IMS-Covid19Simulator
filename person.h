@@ -15,7 +15,8 @@ class Person {
         AGE_GROUP ageGroup;
         INFECTION_STATE infectionState;
         VACCINATION_STATE vaccinationState;
-        int vaccinationIteration;
+        int vaccinationDose1Iteration;
+        int vaccinationDose2Iteration;
         int homeX, homeY;
         int currentX, currentY;
         int destinationX, destinationY;

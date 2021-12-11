@@ -71,6 +71,18 @@ int simulator(bool gui) {
         people[random]->action = PA_GET_INFECTED;
     }
 
+    // Select vaccinated ones
+    for (int i = 0; i < VACCINATED_PEOPLE_FROM_START_DOSE_1; i++) {
+        int random = randomIntFromRange(0, num_of_people - 1);
+        people[random]->vaccinationDose1Iteration = -1;
+        people[random]->vaccinationState = DOSE_1;
+        if (i < VACCINATED_PEOPLE_FROM_START_DOSE_2)
+        {
+            people[random]->vaccinationDose2Iteration = -1;
+            people[random]->vaccinationState = DOSE_2;
+        }
+    }
+
     statistics->addUninfected(num_of_people - START_INFECTED_CNT);
     statistics->addInfected(START_INFECTED_CNT);
 
@@ -78,11 +90,28 @@ int simulator(bool gui) {
     std::cout << "Simulation started" << std::endl;
     for (int iteration = 0; iteration < SIMULATED_CYCLES; iteration++)
     {
-        // TODO: Oèkování
-
         for (int j = 0; j < num_of_people; j++)
         {
             Person *person = people[j];
+
+            if (person->infectionState == DEAD)
+                continue;
+
+            if (iteration == person->vaccinationDose1Iteration)
+            {
+                if (person->infectionState == IN_QUARANTINE || person->infectionState == IN_HOSPITAL)
+                    person->vaccinationDose1Iteration = person->actionIteration;
+                else
+                    person->vaccinationState = DOSE_1; // Infected person in incubation period can also get the vaccine
+            }
+
+            if (iteration == person->vaccinationDose2Iteration)
+            {
+                if (person->infectionState == IN_QUARANTINE || person->infectionState == IN_HOSPITAL)
+                    person->vaccinationDose2Iteration = person->actionIteration;
+                else
+                    person->vaccinationState = DOSE_2; // Infected person in incubation period can also get the vaccine
+            }
 
             if (iteration == person->actionIteration)
             {
@@ -94,7 +123,7 @@ int simulator(bool gui) {
                         if (person->infectionState == IN_HOSPITAL)
                             statistics->removeInHospital();
                         person->die();
-                        break;
+                        continue;
 
                     case PA_GET_INFECTED:
                         statistics->addInfected();
@@ -121,6 +150,7 @@ int simulator(bool gui) {
                                 statistics->removeInfected();
                                 statistics->addDead();
                                 person->die();
+                                continue;
                             }
                             else
                             {
@@ -146,7 +176,7 @@ int simulator(bool gui) {
                 }
             }
 
-            if (person->infectionState == DEAD || person->infectionState == IN_QUARANTINE || person->infectionState == IN_HOSPITAL)
+            if (person->infectionState == IN_QUARANTINE || person->infectionState == IN_HOSPITAL)
                 continue;
 
             // Check surroundings, try get infected
@@ -203,11 +233,27 @@ void generatePeople(AGE_GROUP ageGroup, std::vector<Person*> *people) {
         newPerson->ageGroup = ageGroup;
         newPerson->infectionState = NOT_INFECTED;
         newPerson->vaccinationState = NOT_VACCINATED; // No one is vaccinated from start
-        newPerson->vaccinationIteration = -1;
         newPerson->nextLocationIteration = -1;
         newPerson->actionIteration = -1; // No action
         newPerson->action = PA_IDLE;
         newPerson->hasToBeHospitalized = false;
+        newPerson->vaccinationDose1Iteration = -1;
+        newPerson->vaccinationDose2Iteration = -1;
+
+        // Determine if person will get vaccinated in the future or not
+        if (tryEvent(PERSON_VACCINATION_CHANCE_DOSE_1))
+        {
+            // 1. dose
+            newPerson->vaccinationDose1Iteration = SECONDS_IN_DAY
+                * (VACCINATION_START_DAY_DOSE_1 + randomIntFromRange(PERSON_VACCINATION_MIN_DAYS, PERSON_VACCINATION_MAX_DAYS));
+
+            // 2. dose
+            if (tryEvent(PERSON_VACCINATION_CHANCE_DOSE_2))
+            {
+                newPerson->vaccinationDose2Iteration = SECONDS_IN_DAY
+                    * (VACCINATION_START_DAY_DOSE_2 + randomIntFromRange(PERSON_VACCINATION_MIN_DAYS, PERSON_VACCINATION_MAX_DAYS));
+            }
+        }
 
         // Random home
         newPerson->homeX = randomIntFromRange(0, AREA_SIDE_SIZE - 1);

@@ -64,19 +64,25 @@ void draw_person(cairo_t *cr, GtkWidget *widget, Person *p)
     switch (p->infectionState)
     {
     case NOT_INFECTED:
-        cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.5);
+        if (p->vaccinationState == NOT_VACCINATED)
+            cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.5);
+        else
+            cairo_set_source_rgba(cr, 0.0, 0.3, 1.0, 0.7);
         break;
     case INFECTED:
         cairo_set_source_rgba(cr, 0.0, 0.7, 0.0, 0.7);
         break;
     case IN_HOSPITAL:
-        cairo_set_source_rgba(cr, 0.5, 0.0, 0.0, 0.5);
+        cairo_set_source_rgba(cr, 1.0, 0.0, 1.0, 0.3);
         break;
     case IN_QUARANTINE:
-        cairo_set_source_rgba(cr, 0.5, 0.0, 0.5, 0.5);
+        cairo_set_source_rgba(cr, 0.0, 1.0, 0.0, 0.3);
         break;
     case RECOVERED:
-        cairo_set_source_rgba(cr, 0.8, 0.8, 0.0, 0.8);
+        if (p->vaccinationState == NOT_VACCINATED)
+            cairo_set_source_rgba(cr, 0.8, 0.8, 0.0, 0.8);
+        else
+            cairo_set_source_rgba(cr, 0.0, 0.3, 1.0, 0.7);
         break;
     case DEAD:
         cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
@@ -84,7 +90,7 @@ void draw_person(cairo_t *cr, GtkWidget *widget, Person *p)
     }
 
     cairo_arc(cr, x, y, 3, 0, 2 * M_PI);
-    cairo_fill(cr);
+    cairo_fill(cr); // Fill
 }
 
 

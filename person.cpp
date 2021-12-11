@@ -23,7 +23,7 @@ void Person::moveToDestination(int iteration)
     {
         destinationX = -1;
         destinationY = -1;
-        nextLocationIteration = iteration + 1 + randomIntFromRange(PERSON_NEXT_DEST_CYCLES_MIN, PERSON_NEXT_DEST_CYCLES_MAX);
+        nextLocationIteration = iteration + randomIntFromRange(PERSON_WAIT_TIME_MIN, PERSON_WAIT_TIME_MAX);
     }
     //std::cout << "[" + std::to_string(currentX) + "," + std::to_string(currentY) + "]" << std::endl;
 }
@@ -108,10 +108,12 @@ bool Person::tryToGetInfected(Person* anotherPerson, int distance) {
                 infectionProbability *= 1.0 - DOSE_2_INFECTION_PREVENTION;
                 break;
             default:
-                if (infectionState == RECOVERED)
-                    infectionProbability *= 1.0 - ANTIBODIES_INFECTION_PREVENTION;
                 break;
         }
+
+        if (infectionState == RECOVERED)
+            infectionProbability *= 1.0 - ANTIBODIES_INFECTION_PREVENTION;
+
         return tryEvent(infectionProbability);
     }
 
@@ -123,7 +125,7 @@ void Person::getInfected(int iteration)
 {
     infectionState = INFECTED;
     int incubationDays = randomIntFromRange(INFECTION_INCUBATION_DAYS_MIN, INFECTION_INCUBATION_DAYS_MAX);
-    actionIteration = iteration + incubationDays * SECONDS_IN_DAY;
+    actionIteration = iteration + 1 + incubationDays * SECONDS_IN_DAY;
     
     if (tryToGetHospitalized())
         action = PA_GO_TO_HOSPITAL;
@@ -143,18 +145,21 @@ bool Person::tryToGetHospitalized()
             hospitalizationProbability *= 1.0 - DOSE_2_HOSPITAL_PREVENTION;
             break;
         default:
-            if (infectionState == RECOVERED)
-                hospitalizationProbability *= 1.0 - ANTIBODIES_HOSPITAL_PREVENTION;
             break;
     }
+
+    if (infectionState == RECOVERED)
+        hospitalizationProbability *= 1.0 - ANTIBODIES_HOSPITAL_PREVENTION;
+
     return tryEvent(hospitalizationProbability);
 }
 
+// Person will be in the hospital until next action
 void Person::goToHospital(int iteration)
 {
     infectionState = IN_HOSPITAL;
     int daysInHospital = randomIntFromRange(DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN, DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX);
-    actionIteration = iteration + daysInHospital * SECONDS_IN_DAY;
+    actionIteration = iteration + 1 + daysInHospital * SECONDS_IN_DAY;
     if (tryToDie())
     {
         action = PA_DIE;
@@ -168,7 +173,7 @@ void Person::goToHospital(int iteration)
 void Person::goToQuarantine(int iteration)
 {
     infectionState = IN_QUARANTINE;
-    actionIteration = iteration + DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL * SECONDS_IN_DAY;
+    actionIteration = iteration + 1 + DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL * SECONDS_IN_DAY;
     action = PA_RECOVER;
 }
 
@@ -190,10 +195,12 @@ bool Person::tryToDie() {
             deathProbability *= 1.0 - DOSE_2_DEATH_PREVENTION;
             break;
         default:
-            if (infectionState == RECOVERED)
-                deathProbability *= 1.0 - ANTIBODIES_DEATH_PREVENTION;
             break;
     }
+
+    if (infectionState == RECOVERED)
+        deathProbability *= 1.0 - ANTIBODIES_DEATH_PREVENTION;
+
     return tryEvent(deathProbability);
 }
 

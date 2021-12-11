@@ -3,11 +3,6 @@
 #include <map>
 #include <string>
 
-enum AGE_GROUP { G16_24, G25_29, G30_34, G35_39, G40_44, G45_49, G50_54, G55_59, G60_64, G65_69, G70_74, G75_79, G80 }; // Groups according to https://onemocneni-aktualne.mzcr.cz/covid-19/prehledy-khs
-
-enum INFECTION_STATE { NOT_INFECTED, INFECTED, IN_QUARANTINE, IN_HOSPITAL, RECOVERED, DEAD };
-enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
-
 #define SCALE 1000 //100
 
 #define SECONDS_IN_DAY 86400
@@ -15,20 +10,28 @@ enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 // Probability that person's next destination will be his home 
 #define PERSON_DEST_PROBABILITY_HOME 0.2f
 
-// Minimum and maximum cycles before next move
-#define PERSON_NEXT_DEST_CYCLES_MIN 0
-#define PERSON_NEXT_DEST_CYCLES_MAX 3600 // 1h
+// Minimum and maximum cycles/seconds before next move
+#define PERSON_WAIT_TIME_MIN 1 // 1 second
+#define PERSON_WAIT_TIME_MAX 3600 // 1 hour
 
 // What day of simulation should vaccination start (1. dose)
 #define VACCINATION_START_DAY_DOSE_1 5
-
 // What day of simulation should vaccination start (2. dose)
 #define VACCINATION_START_DAY_DOSE_2 10
 
 // Probability that the person will want to be vaccinated
-#define PERSON_VACCINATION_CHANCE 0.7f //TODO: Najít nìjaká reálná data, kolik % lidí se nechá oèkovat
+#define PERSON_VACCINATION_CHANCE_DOSE_1 0.7f //TODO: Najít nìjaká reálná data, kolik % lidí se nechá oèkovat
 // Probability that the vaccinated person will want second dose
 #define PERSON_VACCINATION_CHANCE_DOSE_2 0.7f //TODO: Najít nìjaká reálná data, kolik % lidí se nechá oèkovat
+
+// After how many days from the beginning of the vaccination will person get vaccine
+#define PERSON_VACCINATION_MIN_DAYS 0
+#define PERSON_VACCINATION_MAX_DAYS 5
+
+// How many people from start should be vaccinated with first dose
+#define VACCINATED_PEOPLE_FROM_START_DOSE_1 0
+// How many vaccinated people from start should also have second dose
+#define VACCINATED_PEOPLE_FROM_START_DOSE_2 0
 
 
 // Area of Prague = 496000m2 (22271m x 22271m)
@@ -74,6 +77,11 @@ enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 
 // Hospital
 #define HOSPITAL_PLACES 27751 // sum of https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece 
+
+
+enum AGE_GROUP { G16_24, G25_29, G30_34, G35_39, G40_44, G45_49, G50_54, G55_59, G60_64, G65_69, G70_74, G75_79, G80 }; // Groups according to https://onemocneni-aktualne.mzcr.cz/covid-19/prehledy-khs
+enum INFECTION_STATE { NOT_INFECTED, INFECTED, IN_QUARANTINE, IN_HOSPITAL, RECOVERED, DEAD };
+enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 
 // Number of people in Prague https://www.czso.cz/staticke/animgraf/cz010/index.html?lang=cz
 static std::map<AGE_GROUP, int> START_AGE_GROUP_CNT {
