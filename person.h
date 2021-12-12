@@ -15,6 +15,7 @@ class Person {
         AGE_GROUP ageGroup;
         INFECTION_STATE infectionState;
         VACCINATION_STATE vaccinationState;
+        bool hasMask;
         int vaccinationDose1Iteration;
         int vaccinationDose2Iteration;
         int homeX, homeY;

@@ -92,13 +92,22 @@ bool Person::tryToGetInfected(Person* anotherPerson, int distance) {
     if ((infectionState == NOT_INFECTED || infectionState == RECOVERED) && anotherPerson->infectionState == INFECTED) {
         float infectionProbability = 0.0;
         if (distance == 0) {
-            infectionProbability = INFECTION_PROBABILITY_0M;
+            if (hasMask || anotherPerson->hasMask)
+                infectionProbability = INFECTION_PROBABILITY_0M_MASK;
+            else
+                infectionProbability = INFECTION_PROBABILITY_0M;
         }
         else if (distance == 1) {
-            infectionProbability = INFECTION_PROBABILITY_1M;
+            if (hasMask || anotherPerson->hasMask)
+                infectionProbability = INFECTION_PROBABILITY_1M_MASK;
+            else 
+                infectionProbability = INFECTION_PROBABILITY_1M;
         }
         else if (distance <= INFECTION_DISTANCE_MAX) {
-            infectionProbability = INFECTION_PROBABILITY_UNTIL_MAX_M;
+            if (hasMask || anotherPerson->hasMask)
+                infectionProbability = INFECTION_PROBABILITY_UNTIL_MAX_M_MASK;
+            else 
+                infectionProbability = INFECTION_PROBABILITY_UNTIL_MAX_M;
         }
         
         switch (vaccinationState) {

@@ -10,13 +10,13 @@
 #define REFRESH_INTERVAL 10
 
 // Statistics reporting interval 
-#define STATS_INTERVAL 86400 // 1 day
+#define STATS_INTERVAL 14400 // 4 hours
 
 // Surface side length (in meters)
-#define AREA_SIDE_SIZE 5000
+#define AREA_SIDE_SIZE 4000
 
 // How many people will be in the area
-#define NUM_OF_PEOPLE 500
+#define NUM_OF_PEOPLE 400
 
 // How many people will be infected from start
 #define START_INFECTED_CNT 10
@@ -25,11 +25,11 @@
 #define HOSPITAL_PLACES 30 //27751 (https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece)
 
 // Probability that person's next destination will be his home 
-#define PERSON_DEST_PROBABILITY_HOME 0.2f
+#define PERSON_DEST_PROBABILITY_HOME 0.35f
 
 // Minimum and maximum cycles before next move
-#define PERSON_WAIT_TIME_MIN 30 // 30 seconds
-#define PERSON_WAIT_TIME_MAX 7200 // 2 hours
+#define PERSON_WAIT_TIME_MIN 900 // 15 min
+#define PERSON_WAIT_TIME_MAX 14400 // 4 hours
 
 // What day of simulation should vaccination start (1. dose)
 #define VACCINATION_START_DAY_DOSE_1 5
@@ -52,11 +52,17 @@
 // Probability that the vaccinated person will want second dose (https://onemocneni-aktualne.mzcr.cz/vakcinace-cr)
 #define PERSON_VACCINATION_CHANCE_DOSE_2 0.95927f
 
+#define NO_MASK_PERCENT 0.15
+
 // Infection parameters 
 // https://aip.scitation.org/doi/10.1063/5.0041596
 #define INFECTION_PROBABILITY_0M 0.63f
 #define INFECTION_PROBABILITY_1M 0.166f
-#define INFECTION_PROBABILITY_UNTIL_MAX_M 0.05
+#define INFECTION_PROBABILITY_UNTIL_MAX_M 0.05f
+
+#define INFECTION_PROBABILITY_0M_MASK 0.166f
+#define INFECTION_PROBABILITY_1M_MASK 0.05f
+#define INFECTION_PROBABILITY_UNTIL_MAX_M_MASK 0.05f
 
 #define INFECTION_DISTANCE_MIN 0
 #define INFECTION_DISTANCE_MAX 8 // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7357531/
@@ -72,7 +78,7 @@
 #define DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL 10
 // https://bmcinfectdis.biomedcentral.com/articles/10.1186/s12879-021-06371-6
 #define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN 8
-#define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX 9 // Nìkdy až 19
+#define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX 9 // Nï¿½kdy aï¿½ 19
 
 // Vaccination effects
 // https://idpjournal.biomedcentral.com/articles/10.1186/s40249-021-00915-3/tables/1
@@ -111,7 +117,7 @@ enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 //    { G80, 60000 }
 //};
 
-// Vìkové složení obyvatelstva ÈR v procentech (31.12.2020) (https://www.czso.cz/csu/czso/vekove-slozeni-obyvatelstva-2020)
+// Vï¿½kovï¿½ sloï¿½enï¿½ obyvatelstva ï¿½R v procentech (31.12.2020) (https://www.czso.cz/csu/czso/vekove-slozeni-obyvatelstva-2020)
 static std::map<AGE_GROUP, float> AGE_GROUP_PROBABILITY{
     { G0_15, 0.17040f },
     { G16_24, 0.08078f },

@@ -70,6 +70,12 @@ int simulator(bool gui) {
     // Generating people
     generatePeople(&people, num_of_people);
     
+    // Selecting people not wearing mask
+    for (int i = 0; i < num_of_people * NO_MASK_PERCENT) {
+        int random = randomIntFromRange(0, num_of_people - 1);
+        people[random]->hasMask = false;
+    }
+
     // Selecting infected ones
     for (int i = 0; i < START_INFECTED_CNT; i++) {
         int random = randomIntFromRange(0, num_of_people - 1);
@@ -287,7 +293,8 @@ void generatePeople(std::vector<Person*> *people, int num_of_people) {
         Person* newPerson = new Person();
         newPerson->ageGroup = (AGE_GROUP)distributions(generator);
         newPerson->infectionState = NOT_INFECTED;
-        newPerson->vaccinationState = NOT_VACCINATED; // No one is vaccinated from start
+        newPerson->vaccinationState = NOT_VACCINATED;
+        newPerson->hasMask = true;
         newPerson->nextLocationIteration = -1;
         newPerson->actionIteration = -1; // No action
         newPerson->action = PA_IDLE;
