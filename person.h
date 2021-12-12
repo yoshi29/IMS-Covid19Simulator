@@ -25,6 +25,8 @@ class Person {
         int actionIteration; // Iteration count when action should be performed
         person_action action;
         bool hasToBeHospitalized;
+        int goOutOfHome; // On what iteration should person go out of home
+        bool shouldSetHomeWait;
 
         // Move person towards destination
         void moveToDestination(int iteration);

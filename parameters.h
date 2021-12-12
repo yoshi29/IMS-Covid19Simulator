@@ -25,11 +25,13 @@
 #define HOSPITAL_PLACES 30 //27751 (https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece)
 
 // Probability that person's next destination will be his home 
-#define PERSON_DEST_PROBABILITY_HOME 0.4f
+#define PERSON_DEST_PROBABILITY_HOME 0.5f
+#define PERSON_HOME_WAIT_TIME_MIN 3600
+#define PERSON_HOME_WAIT_TIME_MAX 28800
 
 // Minimum and maximum cycles before next move
 #define PERSON_WAIT_TIME_MIN 900 // 15 min
-#define PERSON_WAIT_TIME_MAX 14400 // 4 hours
+#define PERSON_WAIT_TIME_MAX 3600 // 1 hour
 
 // What day of simulation should vaccination start (1. dose)
 #define VACCINATION_START_DAY_DOSE_1 5

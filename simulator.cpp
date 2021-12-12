@@ -238,16 +238,33 @@ int simulator(bool gui) {
             // Check surroundings, try get infected
             person->circle_check(iteration);
 
+            if (person->homeX == person->currentX && person->homeY == person->currentY) {
+                if (iteration == person->goOutOfHome) {
+                    person->goOutOfHome = -1;
+                }
+                else if (person->shouldSetHomeWait){
+                    person->goOutOfHome = iteration + 1 + randomIntFromRange(PERSON_HOME_WAIT_TIME_MIN, PERSON_HOME_WAIT_TIME_MAX);
+                    person->shouldSetHomeWait = false;
+                    continue;
+                }
+                else {
+                    continue;
+                }
+            }
+
             // Person has no destination, set a new one
             if (person->destinationX == -1 || person->destinationY == -1)
             {
                 if (iteration < person->nextLocationIteration)
                     continue;
 
-                if (tryEvent(PERSON_DEST_PROBABILITY_HOME))
+                if (tryEvent(PERSON_DEST_PROBABILITY_HOME)) {
                     person->setDestination(person->homeX, person->homeY);
-                else
+                    person->shouldSetHomeWait = true;
+                }
+                else {
                     person->setDestination(randomIntFromRange(0, AREA_SIDE_SIZE - 1), randomIntFromRange(0, AREA_SIDE_SIZE - 1));
+                }
             }
 
             person->moveToDestination(iteration);
@@ -301,6 +318,8 @@ void generatePeople(std::vector<Person*> *people, int num_of_people) {
         newPerson->hasToBeHospitalized = false;
         newPerson->vaccinationDose1Iteration = -1;
         newPerson->vaccinationDose2Iteration = -1;
+        newPerson->goOutOfHome = -1;
+        newPerson->shouldSetHomeWait = true;
 
         // Determine if person will get vaccinated in the future or not
         if (tryEvent(PERSON_VACCINATION_CHANCE_DOSE_1))
