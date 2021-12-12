@@ -1,10 +1,11 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "parameters.h"
 #include "shared.h"
 #include "random_gen.h"
 #include <vector>
 #include <algorithm>
-#include <math.h> 
 #include <fstream>
 
 enum person_action { PA_IDLE, PA_GET_INFECTED, PA_GO_TO_QUARANTINE, PA_GO_TO_HOSPITAL, PA_RECOVER,

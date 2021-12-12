@@ -21,8 +21,8 @@
 // How many people will be infected from start
 #define START_INFECTED_CNT 10
 
-// Hospital places
-#define HOSPITAL_PLACES 30 //27751 (https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece)
+// Hospital places (https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece)
+#define HOSPITAL_PLACES 30
 
 // Probability that person's next destination will be his home 
 #define PERSON_DEST_PROBABILITY_HOME 0.5f
@@ -80,7 +80,7 @@
 #define DAYS_TO_RECOVER_IF_NOT_IN_HOSPITAL 10
 // https://bmcinfectdis.biomedcentral.com/articles/10.1186/s12879-021-06371-6
 #define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MIN 8
-#define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX 9 // N�kdy a� 19
+#define DAYS_TO_RECOVER_IF_IN_HOSPITAL_MAX 9
 
 // Vaccination effects
 // https://idpjournal.biomedcentral.com/articles/10.1186/s40249-021-00915-3/tables/1
@@ -102,24 +102,7 @@ enum AGE_GROUP { G0_15, G16_24, G25_29, G30_34, G35_39, G40_44, G45_49, G50_54, 
 enum INFECTION_STATE { NOT_INFECTED, INFECTED, IN_QUARANTINE, IN_HOSPITAL, RECOVERED, DEAD };
 enum VACCINATION_STATE { NOT_VACCINATED, DOSE_1, DOSE_2 };
 
-//// Number of people in Prague https://www.czso.cz/staticke/animgraf/cz010/index.html?lang=cz
-//static std::map<AGE_GROUP, int> START_AGE_GROUP_CNT {
-//    { G16_24, 100000 },
-//    { G25_29, 80000 },
-//    { G30_34, 110000 },
-//    { G35_39, 110000 },
-//    { G40_44, 130000 },
-//    { G45_49, 110000 },
-//    { G50_54, 80000 },
-//    { G55_59, 80000 },
-//    { G60_64, 70000 },
-//    { G65_69, 70000 },
-//    { G70_74, 70000 }, 
-//    { G75_79, 50000 }, 
-//    { G80, 60000 }
-//};
-
-// V�kov� slo�en� obyvatelstva �R v procentech (31.12.2020) (https://www.czso.cz/csu/czso/vekove-slozeni-obyvatelstva-2020)
+// Vekove slozeni obyvatelstva CR v procentech (31.12.2020) (https://www.czso.cz/csu/czso/vekove-slozeni-obyvatelstva-2020)
 static std::map<AGE_GROUP, float> AGE_GROUP_PROBABILITY{
     { G0_15, 0.17040f },
     { G16_24, 0.08078f },

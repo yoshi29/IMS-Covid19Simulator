@@ -1,7 +1,8 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <gtk/gtk.h>
 #include <cairo.h>
-#include <cmath>
 #include <vector>
 #include "person.h"
 #include "shared.h"

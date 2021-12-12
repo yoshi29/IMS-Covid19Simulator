@@ -2,7 +2,7 @@
 FILENAME := covidSimulator
 
 all: simulator.cpp
-	g++ -std=c++17 -Wall -Wextra -O3 shared.cpp random_gen.cpp app_window.cpp simulator.cpp parameters.cpp statistics.cpp person.cpp -o $(FILENAME) `pkg-config --cflags --libs gtk+-3.0`
+	g++ -std=c++17 -O3 shared.cpp random_gen.cpp app_window.cpp simulator.cpp parameters.cpp statistics.cpp person.cpp -o $(FILENAME) `pkg-config --cflags --libs gtk+-3.0`
 
 run:
 	./$(FILENAME) $(ARGS)
