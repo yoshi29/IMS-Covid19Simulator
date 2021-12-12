@@ -13,10 +13,10 @@
 #define STATS_INTERVAL 14400 // 4 hours
 
 // Surface side length (in meters)
-#define AREA_SIDE_SIZE 4000
+#define AREA_SIDE_SIZE 4500
 
 // How many people will be in the area
-#define NUM_OF_PEOPLE 400
+#define NUM_OF_PEOPLE 450
 
 // How many people will be infected from start
 #define START_INFECTED_CNT 10
@@ -25,7 +25,7 @@
 #define HOSPITAL_PLACES 30 //27751 (https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece)
 
 // Probability that person's next destination will be his home 
-#define PERSON_DEST_PROBABILITY_HOME 0.35f
+#define PERSON_DEST_PROBABILITY_HOME 0.4f
 
 // Minimum and maximum cycles before next move
 #define PERSON_WAIT_TIME_MIN 900 // 15 min
@@ -92,8 +92,8 @@
 // Antibodies after recovery
 // https://www.bmj.com/content/372/bmj.n99
 #define ANTIBODIES_INFECTION_PREVENTION 0.83f
-#define ANTIBODIES_HOSPITAL_PREVENTION 0 // TODO
-#define ANTIBODIES_DEATH_PREVENTION 0 // TODO
+#define ANTIBODIES_HOSPITAL_PREVENTION 0.795f
+#define ANTIBODIES_DEATH_PREVENTION 0.74f 
 
 
 enum AGE_GROUP { G0_15, G16_24, G25_29, G30_34, G35_39, G40_44, G45_49, G50_54, G55_59, G60_64, G65_69, G70_74, G75_79, G80 }; // Groups according to https://onemocneni-aktualne.mzcr.cz/covid-19/prehledy-khs
