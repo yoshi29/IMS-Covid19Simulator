@@ -33,6 +33,26 @@ void Statistics::removeUninfected() {
     removeUninfected(1);
 }
 
+void Statistics::addInQuarantine(int cnt)
+{
+    inQuarantine += cnt;
+}
+
+void Statistics::addInQuarantine()
+{
+    addInQuarantine(1);
+}
+
+void Statistics::removeInQuarantine(int cnt)
+{
+    inQuarantine -= cnt;
+}
+
+void Statistics::removeInQuarantine()
+{
+    removeInQuarantine(1);
+}
+
 void Statistics::addInHospital(int cnt)
 {
     inHospital += cnt;
@@ -120,6 +140,11 @@ int Statistics::getOverallInfectedCnt()
     return infectedOverall;
 }
 
+int Statistics::getInQuarantineCnt()
+{
+    return inQuarantine;
+}
+
 int Statistics::getInHospitalCnt()
 {
     return inHospital;
@@ -135,12 +160,32 @@ int Statistics::getDeadCnt()
     return dead;
 }
 
-int Statistics::getVaccinatedDose1()
+int Statistics::getVaccinatedDose1Cnt()
 {
     return vaccinatedDose1;
 }
 
-int Statistics::getVaccinatedDose2()
+int Statistics::getVaccinatedDose2Cnt()
 {
     return vaccinatedDose2;
+}
+
+void Statistics::printStatisticsHeader(std::ofstream &file)
+{
+    if (file.is_open())
+        file << "iteration;uninfected;infected;overallinfected;inquarantine;inhospital;recovered;firstdose;seconddose;dead" << std::endl;
+    else
+        std::cout << "iteration;uninfected;infected;overallinfected;inquarantine;inhospital;recovered;firstdose;seconddose;dead" << std::endl;
+}
+
+void Statistics::printStatistics(std::ofstream &file, int iteration)
+{
+    if (file.is_open())
+        file << iteration << ";" << getUninfectedCnt() << ";" << getInfectedCnt() << ";" << getOverallInfectedCnt() << ";" <<
+        getInQuarantineCnt() << ";" << getInHospitalCnt() << ";" << getRecoveredCnt() << ";" << getVaccinatedDose1Cnt() << ";" <<
+        getVaccinatedDose2Cnt() << ";" << getDeadCnt() << std::endl;
+    else
+        std::cout << iteration << ";" << getUninfectedCnt() << ";" << getInfectedCnt() << ";" << getOverallInfectedCnt() << ";" <<
+        getInQuarantineCnt() << ";" << getInHospitalCnt() << ";" << getRecoveredCnt() << ";" << getVaccinatedDose1Cnt() << ";" <<
+        getVaccinatedDose2Cnt() << ";" << getDeadCnt() << std::endl;
 }

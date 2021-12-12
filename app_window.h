@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include "person.h"
+#include "shared.h"
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 750

@@ -1,7 +1,7 @@
 #include "random_gen.h"
 
-static std::random_device rnd_device;
-static std::mt19937 generator(rnd_device());
+std::random_device rnd_device;
+std::mt19937 generator(rnd_device());
 
 int randomIntFromRange(int min, int max)
 {

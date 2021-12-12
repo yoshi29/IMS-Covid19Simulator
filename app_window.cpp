@@ -10,6 +10,9 @@ static int current_height;
 
 static void close_window()
 {
+    if (file.is_open())
+        file.close();
+
     exit(EXIT_SUCCESS);
 }
 

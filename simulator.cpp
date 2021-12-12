@@ -1,28 +1,40 @@
 #include "simulator.h"
 using namespace std;
 
+static string filename = "";
+
 int main(int argc, char *argv[])
 {
-    if (argc > 2)
+    bool gui = false;
+    
+    for (int i = 1; i < argc; i++)
     {
-        cerr << "Error - Wrong arguments. Use '--help' for help" << endl;
-        return EXIT_FAILURE;
-    }
-    else if (argc == 2)
-    {
-        string argument = argv[1];
+        string argument = argv[i];
 
-        if (argument == "--help")
+        if (argument == "--gui" || argument == "-g")
         {
-            cout << "Usage: ./covidSimulator [--no-gui | --help]" << endl;
-            cout << "Arguments:" << endl;
-            cout << "\t--no-gui\tRun simulation without GUI" << endl;
-            cout << "\t--help\tPrints this message" << endl;
-            return EXIT_SUCCESS;
+            gui = true;
         }
-        else if (argument == "--no-gui")
+        else if (argument == "--file" || argument == "-f")
         {
-            return simulator(false);
+            if (i == argc - 1)
+            {
+                cerr << "Error - You must specify filename. Use '--help' for help" << endl;
+                return EXIT_FAILURE;
+            }
+
+            filename = argv[i + 1];
+            i++;
+        }
+        else if (argument == "--help" || argument == "-h")
+        {
+            cout << "Usage: ./covidSimulator [--file filename] [--gui] [--help]" << endl;
+            cout << "Arguments:" << endl;
+            cout << "\t--file filename\t\tSpecify a file to store statistics (default is console)" << endl;
+            cout << "\t--gui\t\t\tRun simulation with GUI" << endl;
+            cout << "\t--help\t\t\tPrint this message" << endl;
+
+            return EXIT_SUCCESS;
         }
         else
         {
@@ -30,6 +42,12 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
+
+    if (gui)
+        return open_window(simulator_main, AREA_SIDE_SIZE);
+    else
+        return simulator(false);
+
 
     return open_window(simulator_main, AREA_SIDE_SIZE);
 }
@@ -42,38 +60,37 @@ int simulator_main()
 int simulator(bool gui) {
     std::vector<Person*> people;
 
-    // Generating people
-    generatePeople(G80, &people);  
-    generatePeople(G75_79, &people);
-    generatePeople(G70_74, &people);
-    generatePeople(G65_69, &people);
-    generatePeople(G60_64, &people);
-    generatePeople(G55_59, &people);
-    generatePeople(G50_54, &people);
-    generatePeople(G45_49, &people);
-    generatePeople(G40_44, &people);
-    generatePeople(G35_39, &people);
-    generatePeople(G30_34, &people);
-    generatePeople(G25_29, &people);
-    generatePeople(G16_24, &people);
-    
-    int num_of_people = people.size();
+    int num_of_people = NUM_OF_PEOPLE;
 
-    if (num_of_people == 0) {
-        cout << "Zero people, change some parameters" << endl;
-        return 1;
+    if (num_of_people < 1) {
+        cerr << "Zero people, change some parameters" << endl;
+        return EXIT_FAILURE;
     }
+
+    // Generating people
+    generatePeople(&people, num_of_people);
     
     // Selecting infected ones
     for (int i = 0; i < START_INFECTED_CNT; i++) {
         int random = randomIntFromRange(0, num_of_people - 1);
+        if (people[random]->action == PA_GET_INFECTED)
+        {
+            i--;
+            continue;
+        }
         people[random]->actionIteration = 0;
         people[random]->action = PA_GET_INFECTED;
+        
     }
 
     // Select vaccinated ones
     for (int i = 0; i < VACCINATED_PEOPLE_FROM_START_DOSE_1; i++) {
         int random = randomIntFromRange(0, num_of_people - 1);
+        if (people[random]->vaccinationState != NOT_VACCINATED)
+        {
+            i--;
+            continue;
+        }
         people[random]->vaccinationDose1Iteration = -1;
         people[random]->vaccinationState = DOSE_1;
         if (i < VACCINATED_PEOPLE_FROM_START_DOSE_2)
@@ -87,8 +104,23 @@ int simulator(bool gui) {
     statistics->addVaccinatedDose1(VACCINATED_PEOPLE_FROM_START_DOSE_1);
     statistics->addVaccinatedDose2(VACCINATED_PEOPLE_FROM_START_DOSE_2);
 
+    
+    if (filename != "")
+    {
+        file.open(filename, ios::out | ios::app);
+        if (!file.is_open())
+        {
+            cerr << "Error - Unable to open the file" << endl;
+            return EXIT_FAILURE;
+        }
+    }
+    
+
     // Run simulation
     std::cout << "Simulation started" << std::endl;
+
+    statistics->printStatisticsHeader(file);
+
     for (int iteration = 0; iteration < SIMULATED_CYCLES; iteration++)
     {
         for (int j = 0; j < num_of_people; j++)
@@ -133,12 +165,21 @@ int simulator(bool gui) {
                         continue;
 
                     case PA_GET_INFECTED:
-                        statistics->addInfected();
-                        statistics->removeUninfected();
+                        if (person->infectionState == NOT_INFECTED)
+                        {
+                            statistics->addInfected();
+                            statistics->removeUninfected();
+                        }
+                        else if (person->infectionState == RECOVERED)
+                        {
+                            statistics->addInfected();
+                            statistics->removeRecovered();
+                        }
                         person->getInfected(iteration);
                         break;
 
                     case PA_GO_TO_QUARANTINE:
+                        statistics->addInQuarantine();
                         person->goToQuarantine(iteration);
                         break;
 
@@ -175,6 +216,8 @@ int simulator(bool gui) {
                             person->hasToBeHospitalized = false;
                             hospitalPlaces++;
                         }
+                        else
+                            statistics->removeInQuarantine();
                         person->recover(iteration);
                         break;
 
@@ -210,34 +253,39 @@ int simulator(bool gui) {
             refresh_window(&people);
         }
 
-        if (iteration % STATS_INTERVAL == 0)
-        {
-            printf("[%d] - Uninfected: %d, Infected: %d, Overall infected: %d, Hospitalized: %d, Vaccinated by first dose: %d, Vaccinated by second dose: %d, Dead: %d\n",
-                iteration, statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getOverallInfectedCnt(),
-                statistics->getInHospitalCnt(), statistics->getVaccinatedDose1(), statistics->getVaccinatedDose2(), statistics->getDeadCnt());
-        }
+        if (iteration % STATS_INTERVAL == 0 || iteration + 1 == SIMULATED_CYCLES)
+            statistics->printStatistics(file, iteration);
 
     }
+
+    if (file.is_open())
+        file.close();
 
     if (gui)
         refresh_window(&people);
 
     std::cout << "Simulation finished!" << std::endl;
-    std::cout << "Final statistics:" << std::endl;
-    printf("\tUninfected: %d\n\tInfected: %d\n\tOverall infected: %d\n\tHospitalized: %d\n\tVaccinated by first dose: %d\n\tVaccinated by second dose: %d\n\tDead: %d\n",
-        statistics->getUninfectedCnt(), statistics->getInfectedCnt(), statistics->getOverallInfectedCnt(), statistics->getInHospitalCnt(),
-        statistics->getVaccinatedDose1(), statistics->getVaccinatedDose2(), statistics->getDeadCnt());
 
+
+    // Deallocate
+    for (int i = 0; i < num_of_people; i++)
+        delete people[i];
+    delete statistics;
 
     return EXIT_SUCCESS;
 }
 
-void generatePeople(AGE_GROUP ageGroup, std::vector<Person*> *people) {
-    if ((START_AGE_GROUP_CNT[ageGroup] / SCALE) <= 0) return;
+void generatePeople(std::vector<Person*> *people, int num_of_people) {
 
-    for (int j = 0; j < (START_AGE_GROUP_CNT[ageGroup] / SCALE); j++) {
+    std::vector<float> tmp;
+    for (const auto &group : AGE_GROUP_PROBABILITY) {
+        tmp.push_back(group.second);
+    }
+    std::discrete_distribution<> distributions(tmp.begin(), tmp.end());
+
+    for (int j = 0; j < num_of_people; j++) {
         Person* newPerson = new Person();
-        newPerson->ageGroup = ageGroup;
+        newPerson->ageGroup = (AGE_GROUP)distributions(generator);
         newPerson->infectionState = NOT_INFECTED;
         newPerson->vaccinationState = NOT_VACCINATED; // No one is vaccinated from start
         newPerson->nextLocationIteration = -1;

@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+#include <fstream>
 
 class Statistics {
     public:
@@ -10,6 +12,10 @@ class Statistics {
         void addInfected();
         void removeInfected(int cnt);
         void removeInfected();
+        void addInQuarantine(int cnt);
+        void addInQuarantine();
+        void removeInQuarantine(int cnt);
+        void removeInQuarantine();
         void addInHospital(int cnt);
         void addInHospital();
         void removeInHospital(int cnt);
@@ -28,17 +34,21 @@ class Statistics {
         int getUninfectedCnt();
         int getInfectedCnt();
         int getOverallInfectedCnt();
+        int getInQuarantineCnt();
         int getInHospitalCnt();
         int getRecoveredCnt();
         int getDeadCnt();
-        int getVaccinatedDose1();
-        int getVaccinatedDose2();
+        int getVaccinatedDose1Cnt();
+        int getVaccinatedDose2Cnt();
 
+        void printStatisticsHeader(std::ofstream &file);
+        void printStatistics(std::ofstream &file, int iteration);
 
     private:
         int uninfected = 0;
         int infected = 0;
         int infectedOverall = 0;
+        int inQuarantine = 0;
         int inHospital = 0;
         int recovered = 0;
         int dead = 0;

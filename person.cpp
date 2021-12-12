@@ -48,6 +48,7 @@ void Person::removeFromArea()
 {
     // TODO: Reference (https://stackoverflow.com/a/3385251)
     area[currentX][currentY].erase(std::remove(area[currentX][currentY].begin(), area[currentX][currentY].end(), this), area[currentX][currentY].end());
+    area[currentX][currentY].shrink_to_fit();
 }
 
 void Person::addToArea()

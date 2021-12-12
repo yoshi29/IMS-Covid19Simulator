@@ -5,3 +5,5 @@ std::vector<std::vector<std::vector<Person *>>> area(AREA_SIDE_SIZE, std::vector
 int hospitalPlaces = HOSPITAL_PLACES;
 
 Statistics *statistics = new Statistics();
+
+std::ofstream file;

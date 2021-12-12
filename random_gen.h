@@ -1,5 +1,8 @@
 #pragma once
+#include "parameters.h"
 #include <random>
+
+extern std::mt19937 generator;
 
 int randomIntFromRange(int min, int max);
 
