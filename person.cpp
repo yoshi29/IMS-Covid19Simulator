@@ -79,6 +79,16 @@ void Person::check_position(int X, int Y, int distance, int iteration) {
     for (int j = 0; j < size; j++) {
         Person* anotherPerson = area[X][Y][j];
         if (anotherPerson != this) {
+            // current person is at home and another person is not - current person cannot be infected
+            if (homeX == currentX && homeY == currentY && 
+                (anotherPerson->homeX != anotherPerson->currentX || anotherPerson->homeY != anotherPerson->currentY)) {
+                    continue;
+            }
+            // another person is at home and current person is not - current person cannot be infected
+            if (anotherPerson->homeX == anotherPerson->currentX && anotherPerson->homeY == anotherPerson->currentY && 
+                (homeX != currentX || homeY != currentY)) {
+                    continue;
+            }
             if (tryToGetInfected(anotherPerson, distance)) {
                 actionIteration = iteration + 1;
                 action = PA_GET_INFECTED;
