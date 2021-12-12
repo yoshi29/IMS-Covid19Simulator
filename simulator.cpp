@@ -71,7 +71,7 @@ int simulator(bool gui) {
     generatePeople(&people, num_of_people);
     
     // Selecting people not wearing mask
-    for (int i = 0; i < num_of_people * NO_MASK_PERCENT) {
+    for (int i = 0; i < num_of_people * NO_MASK_PERCENT; i++) {
         int random = randomIntFromRange(0, num_of_people - 1);
         people[random]->hasMask = false;
     }
